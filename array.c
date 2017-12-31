@@ -22,12 +22,13 @@ Cell* allocateArray(int);
 void setValue(Cell*, int index, union u_Cell val, type);
 Cell* getValue(Cell*, int);
 
-void unboxI(Cell*, int*);
-void unboxF(Cell*, float*);
-void unboxD(Cell*, double*);
-void unboxS(Cell*, char**);
-void unboxC(Cell*, char*);
-typeof(&unboxI) unboxH(Cell*);
+typedef void (*unbox) (Cell*, void*);
+void unboxI(Cell*, void*);
+void unboxF(Cell*, void*);
+void unboxD(Cell*, void*);
+void unboxS(Cell*, void*);
+void unboxC(Cell*, void*);
+unbox unboxH(Cell*);
 
 int main(int argc, char** argv) {
   Cell* array = allocateArray(10);
@@ -56,13 +57,13 @@ Cell* getValue(Cell* a, int index) {
   return a + index;
 }
 
-void unboxI(Cell* c, int* r) { *r = c->val.i_val; }
-void unboxF(Cell* c, float* r) { *r = c->val.f_val; }
-void unboxD(Cell* c, double* r) { *r = c->val.d_val; }
-void unboxS(Cell* c, char** r) { *r = c->val.s_val; }
-void unboxC(Cell* c, char* r) { *r = c->val.c_val; }
+void unboxI(Cell* c, void* r) { *(int*)r = c->val.i_val; }
+void unboxF(Cell* c, void* r) { *(float*)r = c->val.f_val; }
+void unboxD(Cell* c, void* r) { *(double*)r = c->val.d_val; }
+void unboxS(Cell* c, void* r) { *(char**)r = c->val.s_val; }
+void unboxC(Cell* c, void* r) { *(char*)r = c->val.c_val; }
 
-typeof(&unboxI) unboxH(Cell* c) {
+unbox unboxH(Cell* c) {
   if(c->t == INTEGER) return unboxI;
   else if(c->t == FLOAT) return unboxF;
   else if(c->t == DOUBLE) return unboxD;
