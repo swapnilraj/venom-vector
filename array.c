@@ -22,12 +22,12 @@ Cell* allocateArray(int);
 void setValue(Cell*, int index, union u_Cell val, type);
 Cell* getValue(Cell*, int);
 
-int* unboxH(Cell*);
-int unboxI(Cell*);
-float unboxF(Cell*);
-double unboxD(Cell*);
-char* unboxS(Cell*);
-char unboxC(Cell*);
+void unboxI(Cell*, int*);
+void unboxF(Cell*, float*);
+void unboxD(Cell*, double*);
+void unboxS(Cell*, char**);
+void unboxC(Cell*, char*);
+typeof(&unboxI) unboxH(Cell*);
 
 int main(int argc, char** argv) {
   Cell* array = allocateArray(10);
@@ -35,8 +35,12 @@ int main(int argc, char** argv) {
   setValue(array, 2, (CellT){.f_val = 55.5f}, FLOAT);
   Cell* a = getValue(array, 1);
   Cell* f = getValue(array, 2);
-  printf("%d\n", unboxH(a)(a));
-  printf("%f\n", unboxH(f)(f));
+  int res;
+  float fres;
+  unboxH(a)(a, &res);
+  unboxH(f)(f, &fres);
+  printf("%d\n", res);
+  printf("%f\n", fres);
   return 0;
 }
 
@@ -52,13 +56,13 @@ Cell* getValue(Cell* a, int index) {
   return a + index;
 }
 
-int unboxI(Cell* c) { return c->val.i_val; }
-float unboxF(Cell* c) { return c->val.f_val; }
-double unboxD(Cell* c) { return c->val.d_val; }
-char* unboxS(Cell* c) { return c->val.s_val; }
-char unboxC(Cell* c) { return c->val.c_val; }
+void unboxI(Cell* c, int* r) { *r = c->val.i_val; }
+void unboxF(Cell* c, float* r) { *r = c->val.f_val; }
+void unboxD(Cell* c, double* r) { *r = c->val.d_val; }
+void unboxS(Cell* c, char** r) { *r = c->val.s_val; }
+void unboxC(Cell* c, char* r) { *r = c->val.c_val; }
 
-int* unboxH(Cell* c) {
+typeof(&unboxI) unboxH(Cell* c) {
   if(c->t == INTEGER) return unboxI;
   else if(c->t == FLOAT) return unboxF;
   else if(c->t == DOUBLE) return unboxD;
