@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
   unboxH(f)(f, &fres);
   printf("%d\n", res);
   printf("%f\n", fres);
+  free(array);
   return 0;
 }
 
