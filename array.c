@@ -25,9 +25,9 @@ struct t_vec {
 typedef struct t_vec Vector;
 
 Cell* allocateArray(int);
-void setValue(Cell*, int index, union u_Cell val, type);
-Cell* getValue(Cell*, int);
-Cell* resize(Cell*, int);
+void setValue(Vector*, int index, union u_Cell val, type);
+Cell* getValue(Vector*, int);
+Cell* resize(Vector*, int);
 void initVector(Vector*);
 
 typedef void (*unbox) (Cell*, void*);
@@ -41,10 +41,10 @@ unbox unboxH(Cell*);
 int main(int argc, char** argv) {
   Vector v = {.size = 10};
   initVector(&v);
-  setValue(v.v, 1, (CellT){99}, INTEGER);
-  setValue(v.v, 2, (CellT){.f_val = 55.5f}, FLOAT);
-  Cell* a = getValue(v.v, 1);
-  Cell* f = getValue(v.v, 2);
+  setValue(&v, 1, (CellT){99}, INTEGER);
+  setValue(&v, 2, (CellT){.f_val = 55.5f}, FLOAT);
+  Cell* a = getValue(&v, 1);
+  Cell* f = getValue(&v, 2);
   int res;
   float fres;
   unboxH(a)(a, &res);
@@ -64,19 +64,20 @@ void initVector(Vector* v) {
 
 Cell* allocateArray(int s) {
   return malloc(s * sizeof(Cell));
-
 }
 
-void setValue(Cell* a, int index, union u_Cell val, type t) {
-  *(a + index) = (Cell) {val, t};
+void setValue(Vector* v, int index, union u_Cell val, type t) {
+  if(index < 0 || index >= v->size) {fprintf(stderr, "Out of bounds"); exit(1);}
+  *(v->v + index) = (Cell) {val, t};
 }
 
-Cell* getValue(Cell* a, int index) {
-  return a + index;
+Cell* getValue(Vector* v, int index) {
+  if(index < 0 || index >= v->size) {fprintf(stderr, "Out of bounds"); exit(1);}
+  return v->v + index;
 }
 
-Cell* resize(Cell* a, int f) {
-  return realloc(a, f * sizeof(Cell));
+Cell* resize(Vector* v, int f) {
+  return realloc(v->v, f * sizeof(Cell));
 }
 
 void unboxI(Cell* c, void* r) { *(int*)r = c->val.i_val; }
