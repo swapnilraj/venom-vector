@@ -31,6 +31,7 @@ Cell* getValue(Vector*, int);
 Cell* resize(Vector*, int);
 void initVector(Vector*);
 
+#define unbox(c, r) (unboxH((c))((c), (r)))
 typedef void (*unbox) (Cell*, void*);
 void unboxI(Cell*, void*);
 void unboxF(Cell*, void*);
@@ -48,8 +49,7 @@ int main(int argc, char** argv) {
   Cell* f = getValue(&v, 2);
   int res;
   float fres;
-  unboxH(a)(a, &res);
-  unboxH(f)(f, &fres);
+  unbox(a, &res);
   printf("%d\n", res);
   printf("%f\n", fres);
   free(v.v);
