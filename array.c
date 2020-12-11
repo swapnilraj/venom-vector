@@ -24,12 +24,12 @@ struct t_vec {
 };
 typedef struct t_vec Vector;
 
-Cell* allocateArray(int);
-void setValue(Vector*, int index, union u_Cell val, type);
+Cell* allocateArray(size_t);
 void setValue(Vector*, int index, CellT val, type);
 Cell* getValue(Vector*, int);
 Cell* resize(Vector*, int);
-void initVector(Vector*);
+Vector* initVector(size_t);
+void freeVector(Vector*);
 
 #define unbox(c, r) (unboxH((c))((c), (r)))
 typedef void (*unbox) (Cell*, void*);
@@ -41,29 +41,34 @@ void unboxC(Cell*, void*);
 unbox unboxH(Cell*);
 
 int main(int argc, char** argv) {
-  Vector v = {.size = 10};
-  initVector(&v);
-  setValue(&v, 1, (CellT){99}, INTEGER);
-  setValue(&v, 2, (CellT){.f_val = 55.5f}, FLOAT);
-  Cell* a = getValue(&v, 1);
-  Cell* f = getValue(&v, 2);
+  Vector* v = initVector(10);
+  setValue(v, 1, (CellT){99}, INTEGER);
+  setValue(v, 2, (CellT){.f_val = 55.5f}, FLOAT);
+  Cell* a = getValue(v, 1);
+  Cell* f = getValue(v, 2);
   int res;
   float fres;
   unbox(a, &res);
+  unbox(f, &fres);
   printf("%d\n", res);
   printf("%f\n", fres);
-  free(v.v);
+  freeVector(v);
 }
 
-void initVector(Vector* v) {
-  if(v->size <= 0) {
+Vector* initVector(size_t size) {
+  if(size <= 0) {
     fprintf(stderr, "Size cannot be less than or equal to 0");
     exit(1);
   }
-  v->v = allocateArray(v->size);
+
+  Vector* v = (Vector*)malloc(sizeof(Vector));
+  v->size = size;
+  v->v = allocateArray(size);
+
+  return v;
 }
 
-Cell* allocateArray(int s) {
+Cell* allocateArray(size_t s) {
   return malloc(s * sizeof(Cell));
 }
 
@@ -93,4 +98,9 @@ unbox unboxH(Cell* c) {
   else if(c->t == DOUBLE) return unboxD;
   else if(c->t == CHAR) return unboxC;
   else return unboxS;
+}
+
+void freeVector(Vector* v) {
+  free(v->v);
+  free(v);
 }
