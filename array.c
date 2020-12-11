@@ -13,7 +13,7 @@ typedef union u_Cell CellT;
 typedef enum {INTEGER, FLOAT, DOUBLE, STRING, CHAR} type;
 
 struct t_Cell {
-  union u_Cell val;
+  CellT val;
   type t;
 };
 typedef struct t_Cell Cell;
@@ -26,6 +26,7 @@ typedef struct t_vec Vector;
 
 Cell* allocateArray(int);
 void setValue(Vector*, int index, union u_Cell val, type);
+void setValue(Vector*, int index, CellT val, type);
 Cell* getValue(Vector*, int);
 Cell* resize(Vector*, int);
 void initVector(Vector*);
@@ -66,7 +67,7 @@ Cell* allocateArray(int s) {
   return malloc(s * sizeof(Cell));
 }
 
-void setValue(Vector* v, int index, union u_Cell val, type t) {
+void setValue(Vector* v, int index,  CellT val, type t) {
   if(index < 0 || index >= v->size) {fprintf(stderr, "Out of bounds"); exit(1);}
   *(v->v + index) = (Cell) {val, t};
 }
